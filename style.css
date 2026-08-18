@@ -1,0 +1,589 @@
+/*
+ * Anti-slop — стили панели.
+ *
+ * Всё в переменных темы таверны: пользователь ставит свою тему и вправе ожидать,
+ * что расширение в неё впишется. Своих цветов четыре, и все — акценты состояния
+ * (предупреждение, ошибка, темп вниз, темп вверх). Ни один из них не несёт
+ * смысла в одиночку: рядом всегда есть слово или число.
+ *
+ * Телефон здесь не «ещё один размер экрана», а основной сценарий: большая часть
+ * аудитории запускает таверну на Android. Отсюда сетка, которая переносится
+ * сама, и цели нажатия не меньше 32 пикселей.
+ */
+
+/* Паддинги и бордеры плиток/строк не должны прибавляться к их ширине сверху —
+ * иначе даже верно посчитанная сетка на узком экране расползается вбок на
+ * толщину рамки. */
+.antislop-panel,
+.antislop-panel *,
+.antislop-panel *::before,
+.antislop-panel *::after {
+    box-sizing: border-box;
+}
+
+/* Перестройку ниже считаем от ширины самой панели (контейнерные запросы), а
+ * не от ширины окна: #extensions_settings2 у таверны сам может быть уже
+ * вьюпорта из-за внутренних отступов, и на телефоне это и есть настоящая
+ * доступная ширина. Контейнерные запросы — штатное средство CSS, отдельный
+ * @media на ширину окна тут не нужен. */
+.antislop-panel {
+    container-type: inline-size;
+    container-name: antislop;
+}
+
+.antislop-panel .antislop-run {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.antislop-panel .antislop-run.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Пояснение рядом с именем расширения в шапке. Приглушено намеренно: имя должно
+ * читаться первым, иначе оно теряется, а искать в списке расширений будут именно
+ * его. На тесной ширине уходит совсем — имя важнее. */
+.antislop-subtitle {
+    font-size: 0.85em;
+    opacity: 0.55;
+    margin-left: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@container antislop (max-width: 300px) {
+    .antislop-subtitle {
+        display: none;
+    }
+}
+
+.antislop-status {
+    font-size: 0.9em;
+    opacity: 0.75;
+    min-height: 1.2em;
+    margin-bottom: 8px;
+}
+
+.antislop-status.antislop-warn {
+    opacity: 1;
+    color: #e0a458;
+}
+
+.antislop-status.antislop-error {
+    opacity: 1;
+    color: #d4736f;
+}
+
+/* Сводка: плитки переносятся сами — на узком экране встают по две. */
+.antislop-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.antislop-summary:empty {
+    margin-bottom: 0;
+}
+
+.antislop-tile {
+    /* У грид-ячейки по умолчанию min-width: auto — это ширина её самого
+     * длинного «неразрывного» содержимого (одно слово подписи вроде
+     * «разнообразие»). На узкой колонке это слово шире плитки и раздвигает
+     * весь ряд, а вместе с ним и панель, вбок. Разрешаем ужиматься. */
+    min-width: 0;
+    padding: 6px 4px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 8px;
+    text-align: center;
+    background-color: var(--black30a);
+}
+
+.antislop-tile-value {
+    font-size: 1.3em;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--SmartThemeQuoteColor);
+}
+
+.antislop-tile-label {
+    font-size: 0.75em;
+    opacity: 0.7;
+    /* Подпись — это слово без пробелов внутри узкой плитки; без переноса по
+     * буквам оно просто вылезет за край вместо того, чтобы уйти на вторую
+     * строку. */
+    overflow-wrap: break-word;
+}
+
+/* Приписка под подписью: «на 7 больше, чем за предыдущие 20». Мельче и бледнее
+ * подписи — это уточнение к числу, а не второе число. */
+.antislop-tile-note {
+    font-size: 0.7em;
+    opacity: 0.55;
+    line-height: 1.25;
+    margin-top: 2px;
+    overflow-wrap: break-word;
+}
+
+.antislop-section {
+    margin-bottom: 12px;
+}
+
+.antislop-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.antislop-note {
+    font-weight: 400;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.antislop-empty {
+    font-size: 0.9em;
+    opacity: 0.7;
+    padding: 4px 0;
+}
+
+.antislop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.antislop-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+}
+
+.antislop-row:nth-child(odd) {
+    background-color: var(--black30a);
+}
+
+/* Вся строка нажимается — не только стрелка справа (см. `jumpRow` в ui/panel.js). */
+.antislop-clickable {
+    cursor: pointer;
+    /* На телефоне нажатие подсвечивается системой; на десктопе нужна своя
+     * обратная связь, иначе непонятно, что строка вообще кликабельна. */
+    transition: background-color 0.1s;
+}
+
+.antislop-clickable:hover,
+.antislop-clickable:focus-visible {
+    background-color: var(--white20a, rgba(255, 255, 255, 0.12));
+}
+
+/* Текст оборота и строка чисел под ним — одна колонка, забирающая всё
+ * свободное место. `min-width: 0` обязателен: без него длинное слово внутри
+ * не даст флекс-элементу сжаться и растянет панель вбок. */
+.antislop-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Оборот длиннее строки не должен растягивать панель: обрезаем, полное — в подсказке. */
+.antislop-phrase {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Числа, которые раньше жили только в `title`. Подсказки на сенсорном экране
+ * не открываются, поэтому на телефоне их надо показывать текстом. */
+.antislop-meta {
+    font-size: 0.8em;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.antislop-count {
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+
+/* Знак темпа. Смысл несут стрелка и слово; цвет — третий слой, и убрать его
+ * без потери смысла можно. Поэтому и `data-kind` красит, а не подписывает. */
+.antislop-trend {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    padding: 1px 6px;
+    border-radius: 10px;
+    border: 1px solid currentColor;
+    opacity: 0.9;
+}
+
+.antislop-trend[data-kind='slower'],
+.antislop-trend[data-kind='cooled'] {
+    color: #7fb069;
+}
+
+/* Затих — наблюдение послабее, чем измеренное падение темпа: оборота просто
+ * давно не было. Тише и по виду. */
+.antislop-trend[data-kind='cooled'] {
+    opacity: 0.65;
+}
+
+.antislop-trend[data-kind='faster'] {
+    color: #e0a458;
+}
+
+.antislop-notable .antislop-count {
+    color: #e0a458;
+    opacity: 1;
+}
+
+.antislop-jump {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    margin: 0;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*
+ * Полоса прогресса полного подсчёта. Нужна не для красоты: проход по длинному
+ * чату стоит полторы секунды на десктопе и заметно больше на
+ * телефоне, а панель, которая всё это время молчит, выглядит сломанной.
+ * Ширина заполнения приходит инлайновым `style.width` из ui/panel.js.
+ */
+.antislop-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.antislop-progress:empty {
+    display: none;
+}
+
+.antislop-progress-track {
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background-color: var(--black30a);
+}
+
+.antislop-progress-fill {
+    height: 100%;
+    background-color: var(--SmartThemeQuoteColor);
+}
+
+.antislop-progress-label {
+    font-size: 0.85em;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Запасной режим: воркер не поднялся, считаем на главном потоке. Молчать об
+ * этом нельзя — пользователь имеет право знать, почему интерфейс подтормаживает. */
+.antislop-fallback {
+    font-size: 0.85em;
+    color: #e0a458;
+}
+
+.antislop-fallback:empty {
+    display: none;
+}
+
+/* Короткое «получилось» рядом с кнопкой, которую нажали. Всплывашка в углу
+ * экрана уводила бы взгляд с того места, где человек только что действовал. */
+.antislop-toast {
+    font-size: 0.85em;
+    color: var(--SmartThemeQuoteColor);
+    min-height: 0;
+}
+
+.antislop-toast:empty {
+    display: none;
+}
+
+/* Кнопка внутри нажимаемой строки (скрыть оборот, вернуть его). Размер тот же,
+ * что у стрелки перехода: обе — цели для пальца, и разнобой в ряду заметен. */
+.antislop-icon {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    margin: 0;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+}
+
+.antislop-icon:hover,
+.antislop-icon:focus-visible {
+    opacity: 1;
+}
+
+/*
+ * График индекса по сообщениям.
+ *
+ * Высота задаётся здесь, а ширина — местом: `preserveAspectRatio: none` в SVG
+ * растягивает столбики по горизонтали как угодно, а по вертикали шкала остаётся
+ * той, что посчитана. Именно поэтому у столбиков нет обводки: её растянуло бы
+ * вместе с ними, и слева она была бы толще, чем сверху.
+ */
+.antislop-graph-svg {
+    display: block;
+    width: 100%;
+    height: 64px;
+    overflow: visible;
+}
+
+.antislop-bar {
+    fill: var(--SmartThemeQuoteColor);
+    opacity: 0.65;
+    cursor: pointer;
+}
+
+.antislop-bar:hover,
+.antislop-bar:focus-visible {
+    opacity: 1;
+    outline: none;
+}
+
+.antislop-graph-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 0.75em;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+/* --- настройки ---------------------------------------------------------- */
+
+.antislop-settings {
+    margin-top: 4px;
+}
+
+.antislop-subdrawer .inline-drawer-header {
+    font-size: 0.95em;
+    padding: 4px 0;
+}
+
+.antislop-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    /* Нажимается вся подпись, а не квадратик 13×13: попасть в него пальцем
+     * можно только со второй попытки. */
+    min-height: 32px;
+    cursor: pointer;
+}
+
+.antislop-field {
+    margin: 8px 0;
+}
+
+.antislop-field-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-bottom: 2px;
+}
+
+.antislop-field .text_pole {
+    width: 100%;
+}
+
+.antislop-hint {
+    font-size: 0.8em;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+/* Цена включённой вставки в промпт. Единственная функция расширения, которая
+ * тратит токены, — и единственная подпись, которую нельзя гасить прозрачностью
+ * до незаметности. */
+.antislop-cost {
+    opacity: 0.85;
+    color: #e0a458;
+    margin-bottom: 6px;
+}
+
+/* Всё, что относится к включённой галочке, сдвинуто вправо: иначе на длинном
+ * списке настроек непонятно, что к чему относится. */
+.antislop-nested {
+    padding-left: 10px;
+    border-left: 2px solid var(--SmartThemeBorderColor);
+}
+
+.antislop-template {
+    width: 100%;
+    font-family: var(--monoFontFamily, monospace);
+    font-size: 0.85em;
+    resize: vertical;
+}
+
+.antislop-preview {
+    margin-top: 8px;
+}
+
+/* Попадание правила: обычная строка, но не приглушённая, как подсказка, — это
+ * число, а не пояснение к нему. */
+.antislop-hits {
+    font-size: 0.9em;
+}
+
+.antislop-preview-text {
+    margin: 0;
+    padding: 6px;
+    border-radius: 6px;
+    background-color: var(--black30a);
+    font-size: 0.8em;
+    /* Правило — это текст с переносами, и они значимы: пользователь копирует
+     * его в свой пресет как есть. Но горизонтальной прокрутки внутри панели
+     * быть не должно. */
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    max-height: 30vh;
+    overflow-y: auto;
+}
+
+/* Одиночная кнопка под списком («вернуть все», «сбросить шаблон»). Без этого
+ * `menu_button` в колонке ужимается до ширины самого длинного слова и переносит
+ * подпись по строкам — выглядит как сломанная вёрстка. */
+.antislop-wide {
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+    margin-top: 6px;
+}
+
+.antislop-export {
+    margin-top: 10px;
+}
+
+.antislop-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.antislop-buttons .menu_button {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 32px;
+}
+
+.antislop-buttons .menu_button.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* --- бейдж у сообщения --------------------------------------------------- */
+
+/*
+ * Число, а не только цвет: часть аудитории цвета не различает, а телефон
+ * рассматривают под углом и на солнце. Цвет — второй слой, подтверждающий то,
+ * что уже написано цифрой.
+ */
+.antislop-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 8px;
+    font-size: 0.75em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.6;
+    background-color: var(--black30a);
+    border: 1px solid var(--SmartThemeBorderColor);
+    /* Бейдж стоит в шапке сообщения рядом с именем — не должен ни растягивать
+     * её, ни перехватывать нажатия, адресованные самому сообщению. */
+    flex: 0 0 auto;
+    cursor: default;
+    user-select: none;
+}
+
+.antislop-badge[data-level="calm"] { color: #6fb98f; }
+.antislop-badge[data-level="mid"]  { color: #e0a458; }
+.antislop-badge[data-level="loud"] { color: #d4736f; }
+
+/*
+ * Узкая панель (телефон). Порог 380px выбран по ширине самой панели
+ * (container query), а не окна: на телефонах с шириной экрана 360–320px
+ * панель настроек расширения, за вычетом её внутренних отступов, попадает
+ * заметно ниже 380px, а на десктопе даже в узкой боковой колонке таверны
+ * панель обычно шире — так что запрос срабатывает именно там, где нужно.
+ */
+@container antislop (max-width: 380px) {
+    /* Плитки по 72px в ряд на такой ширине — это плитки шириной
+     * с большой палец, где цифра и подпись налезают друг на друга при
+     * переносе. Разводим по 2 в ряд: подписи умещаются в одну строку,
+     * а сами плитки остаются достаточно крупными, чтобы их было видно
+     * с руки. */
+    .antislop-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Нажимается вся строка, так что стрелка — уже не единственная цель, но
+     * она остаётся тем местом, куда целятся, и на тесной ширине ей нужен
+     * запас сверх базового минимума в 32px. */
+    .antislop-jump,
+    .antislop-icon {
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    /* Четыре кнопки выдачи в ряд на такой ширине превращаются в четыре
+     * вертикальные полоски с обрезанными подписями. Ставим по одной. */
+    .antislop-buttons .menu_button {
+        flex: 1 1 100%;
+    }
+
+    /* У знака темпа на такой ширине остаётся одна стрелка: слово рядом с ней
+     * съедало бы у оборота треть строки. Смысл при этом не теряется — он
+     * целиком написан словами в строке чисел под оборотом, а она никуда не
+     * девается. Прятать надо было бы наоборот, если бы её не было. */
+    .antislop-trend span {
+        display: none;
+    }
+
+    .antislop-trend {
+        padding: 1px 4px;
+    }
+}
+
+/* Мигание сообщения, к которому перешли: без него после прокрутки непонятно, куда смотреть. */
+@keyframes antislop-flash {
+    0%   { background-color: transparent; }
+    25%  { background-color: var(--SmartThemeQuoteColor); }
+    100% { background-color: transparent; }
+}
+
+.mes.antislop-flash {
+    animation: antislop-flash 1.5s ease-out;
+}

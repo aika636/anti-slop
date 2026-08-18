@@ -1,0 +1,11 @@
+{
+  "name": "anti-slop",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "description": "Расширение SillyTavern: анализ повторяющихся оборотов в ответах модели. core/ не знает про браузер и про ST.",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "license": "MIT"
+}

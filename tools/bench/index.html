@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>anti-slop — стенд производительности</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #10131a;
+    --panel: #1a1f2b;
+    --text: #e8ecf4;
+    --muted: #9aa4b8;
+    --accent: #5aa9ff;
+    --border: #2a3142;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.4;
+    padding: 12px;
+  }
+  h1 {
+    font-size: 1.2rem;
+    margin: 0 0 4px;
+  }
+  p.lead {
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-size: 0.92rem;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  label.file-label {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: var(--muted);
+  }
+  input[type="file"] {
+    display: block;
+    width: 100%;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  button {
+    font-size: 1.02rem;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #232a3a;
+    color: var(--text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active {
+    background: var(--accent);
+    color: #0a0f18;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  button.primary {
+    background: var(--accent);
+    color: #0a0f18;
+    font-weight: 600;
+    border-color: var(--accent);
+  }
+  #status {
+    font-size: 0.95rem;
+    color: var(--accent);
+    min-height: 1.4em;
+    margin: 4px 0 0;
+  }
+  #report {
+    display: block;
+    margin: 0;
+    background: #0b0e14;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.78rem;
+    white-space: pre;
+    overflow-x: auto;
+    max-width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 6px 0 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>anti-slop — стенд производительности</h1>
+<p class="lead">
+  Меряет, сколько стоит проход ядра по чату и подвисает ли из-за этого интерфейс:
+  главный поток, кадры <code>requestAnimationFrame</code> и модульный воркер.
+  Ничего никуда не отправляется — все файлы читаются только в этой вкладке.
+</p>
+
+<div class="panel">
+  <label class="file-label" for="fileInput">
+    Выберите один или несколько экспортов чата (.jsonl). Если файлов несколько,
+    каждый меряется отдельно и все вместе — как один длинный чат.
+  </label>
+  <!-- Фильтр по расширению снят намеренно: у `.jsonl` нет зарегистрированного
+       типа, и выборщик файлов Android гасит такие файлы — выбрать нечего.
+       Лишнее в отборе всё равно отсеет `parseChatText`. -->
+  <input type="file" id="fileInput" multiple>
+
+  <label class="file-label" for="extraNames" style="margin-top: 12px">
+    Имена персонажей, которых нет в файле — через запятую. Имя персоны стенд
+    берёт сам из ваших реплик; дописывать нужно только имя карточки, если в
+    тексте персонажа зовут не так, как называется сама карточка. Влияет на
+    стоп-лист имён, а через него — на замер.
+  </label>
+  <input type="text" id="extraNames" autocomplete="off" spellcheck="false"
+         placeholder="Имя Персонажа, Второе Имя">
+</div>
+
+<div class="panel">
+  <div class="buttons">
+    <button id="btnMain" class="primary" type="button">Главный поток</button>
+    <button id="btnWorker" type="button">Воркер</button>
+    <button id="btnBoth" type="button">И то и другое</button>
+    <button id="btnCopy" type="button">Скопировать отчёт</button>
+  </div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <p class="hint">
+    Если автокопирование не сработает (характерно для http без localhost),
+    отчёт будет выделен целиком — скопируйте его вручную.
+  </p>
+</div>
+
+<pre id="report" aria-label="Отчёт стенда"></pre>
+
+<script type="module" src="./bench.mjs"></script>
+</body>
+</html>
