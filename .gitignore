@@ -8,7 +8,7 @@ tools/bench/chats/
 # Пути к корпусу и имена карточек конкретной машины. Формат — в `tools/corpus.mjs`.
 tools/corpus.local.mjs
 
-# Локальные рабочие заметки — не документация, в репозиторий не попадают.
-/anti-slop.md
-/plan-anti-slop.md
-/etap*.md
+# Локальные файлы разработки
+CLAUDE.md
+AGENTS.md
+.dev/

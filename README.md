@@ -131,7 +131,7 @@ https://github.com/aika636/anti-slop
 ## Разработка
 
 Устройство модулей, стенды замеров и всё, что важно помнить, трогая этот код, — в
-[DEVELOPMENT.md](DEVELOPMENT.md).
+[docs/development.md](docs/development.md).
 
 ```
 npm test

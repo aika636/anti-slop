@@ -118,7 +118,7 @@ model as the chat, inside the usual request.
 ## Development
 
 Module layout, benchmarks and everything worth remembering before touching this code are in
-[DEVELOPMENT.md](DEVELOPMENT.md) (in Russian).
+[docs/development.md](docs/development.md) (in Russian).
 
 ```
 npm test
